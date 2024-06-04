@@ -26,7 +26,7 @@ public class CandidateDTPReportData {
 	long assessmentVersionId;
 	long valuesVersionId;
 	public boolean assessment;
-	public boolean values;
+	public boolean valueAssessment;
 	public boolean preferenes;
 	LocalDateTime createdAt;
 	LocalDateTime updatedAt;
