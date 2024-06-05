@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy WAR app to Azure Web App - xenhire
+name: Build and deploy JAR app to Azure Web App - xenhireApi
 
 on:
   push:
@@ -28,7 +28,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: java-app
-          path: '${{ github.workspace }}/target/*.war'
+          path: '${{ github.workspace }}/target/*.jar'
 
   deploy:
     runs-on: ubuntu-latest
@@ -38,7 +38,7 @@ jobs:
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
       id-token: write #This is required for requesting the JWT
-
+  
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v3
@@ -48,15 +48,15 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v1
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_AAFC36CE23FC4832933D531CD2ACBE86 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_475F1B14C52F4C95A4E5ADB9D33C5EB7 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_65B0790BC561404D80148D83475EE9D0 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_1FDE5406194C40608750A461BEA1C763 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_8F920B0000DA4D1DBB6D4221207547C2 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_78EBE24158464B3EB5FF8837AB811D13 }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'xenhire'
+          app-name: 'xenhireApi'
           slot-name: 'Production'
-          package: '*.war'
+          package: '*.jar'
           
