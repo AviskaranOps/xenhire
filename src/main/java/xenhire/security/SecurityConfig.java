@@ -33,7 +33,7 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		return http.csrf().disable().authorizeHttpRequests()
 				.requestMatchers(
-						"/" , "/xen","/xen/login","/login", "/saveClientAssessment", "/xen/saveClientAssessment", "/xen/signup","/signup",
+						"/getEncryptedPass","/" , "/login", "/saveClientAssessment", "/xen/saveClientAssessment", "/xen/signup","/signup",
 						"/saveCandidateAssessment", "/xen/saveCandidateAssessment", "/getClientQuestionnaire", "/xen/getClientQuestionnaire",
 						"/getCandidateQuestionnaire", "/xen/getCandidateQuestionnaire", "/saveClientForm", "/xen/saveClientForm", "/getSection", "/xen/getSection",
 						"/saveCandidateForm", "/xen/saveCandidateForm", "/getCandidateValuesQuestionnaire", "/xen/getCandidateValuesQuestionnaire",
