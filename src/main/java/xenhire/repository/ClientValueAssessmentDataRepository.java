@@ -13,4 +13,5 @@ public interface ClientValueAssessmentDataRepository extends JpaRepository<Clien
 
 	ClientValueAssessmentData findByClientId(long clientId);
 
+
 }

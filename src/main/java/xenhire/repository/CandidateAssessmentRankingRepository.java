@@ -9,5 +9,7 @@ import xenhire.model.CandidateAssessmentRanking;
 public interface CandidateAssessmentRankingRepository extends JpaRepository<CandidateAssessmentRanking, Long>{
 
 	List<CandidateAssessmentRanking> findByCandidateId(long candidateId);
+	
+	List<CandidateAssessmentRanking> findByCandidateIdAndVersionId(long candidateId, long versionNo);
 
 }

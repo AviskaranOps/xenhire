@@ -29,6 +29,7 @@ public class CandidateQuestionnaire {
 	String optionCategory;
 	long correctOption;
 	String section;
+	String experienceLevel;
 	Date createdAt;
 
 }

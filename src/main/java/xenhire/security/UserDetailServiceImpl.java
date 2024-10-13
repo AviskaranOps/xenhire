@@ -38,7 +38,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
     
     public User getUserDetails(String username) {
     	User user = userRepository.findByUsernameOrEmail(username, username);
-    	return user;
+    	return user; 	
     }
     
    

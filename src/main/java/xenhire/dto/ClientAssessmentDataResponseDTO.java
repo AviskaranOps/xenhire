@@ -23,5 +23,8 @@ public class ClientAssessmentDataResponseDTO {
 	String competencyName;
 	long pillar_id;
 	String pillarName;
+	String templateName;
+	int weightage;
+	String createdBy;
 
 }

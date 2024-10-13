@@ -27,6 +27,8 @@ public class CandidateOptions {
 	int questionnaireNo;
 	long competencyId;
 	int optionLevel;
+	int weightage;
+	String scoringType;
 	Date createdAt;
 
 }

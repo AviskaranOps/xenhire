@@ -1,5 +1,7 @@
 package xenhire.repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -14,6 +16,6 @@ public interface CandidateAssessmentVersionRepository extends JpaRepository<Cand
 
 	CandidateAssessmentVersion findByCandidateIdAndVersionNo(long candidateId, int versionNo);
 
-	CandidateAssessmentVersion findByCandidateId(long candidateId);
+	List<CandidateAssessmentVersion> findByCandidateId(long candidateId);
 
 }

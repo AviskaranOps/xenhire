@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class PasswordRequest {
 
-	String emailId;
-	String newPassword;
+	String email;
+	String password;
 }
 

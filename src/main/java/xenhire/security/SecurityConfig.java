@@ -33,18 +33,28 @@ public class SecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		return http.csrf().disable().authorizeHttpRequests()
 				.requestMatchers(
-						"/getEncryptedPass","/" , "/login", "/saveClientAssessment", "/xen/saveClientAssessment", "/xen/signup","/signup",
+						"/getEncryptedPass","/xen/getEncryptedPass" , "/login", "/xen/login", "/saveClientAssessment", "/xen/saveClientAssessment", "/xen/signup","/signup",
 						"/saveCandidateAssessment", "/xen/saveCandidateAssessment", "/getClientQuestionnaire", "/xen/getClientQuestionnaire",
 						"/getCandidateQuestionnaire", "/xen/getCandidateQuestionnaire", "/saveClientForm", "/xen/saveClientForm", "/getSection", "/xen/getSection",
 						"/saveCandidateForm", "/xen/saveCandidateForm", "/getCandidateValuesQuestionnaire", "/xen/getCandidateValuesQuestionnaire",
 						"/postClientQuestionnaire", "/xen/postClientQuestionnaire", "/postCandidateQuestionnaire", "/xen/postCandidateQuestionnaire",
-						"/postCandidateRanking", "/xen/postCandidateRanking", "/getCandidateValuesQuestionnaire", "/xen/getCandidateValuesQuestionnaire",
+						"/postCandidateRanking", "/xen/postCandidateRanking","/getCandidateDTPInfo", "/xen/getCandidateDTPInfo", "/getCandidatePreferences", "/xen/getCandidatePreferences",
 						"/saveCandidateValueAssessment", "/xen/saveCandidateValueAssessment", "/saveClientValueAssessment", "/xen/saveClientValueAssessment",
-						"/getJobMatchingScore", "/xen/getJobMatchingScore", "/getClientIcpReport", "/xen/getClientIcpReport", "/getCandidateDtpReport", "/xen/getCandidateDtpReport"
-						
-						
-				)
-				
+						"/getJobMatchingScore", "/xen/getJobMatchingScore", "/getClientIcpReport", "/xen/getClientIcpReport", "/getCandidateDtpReport", "/xen/getCandidateDtpReport",
+						"/verifyOTP", "/xen/verifyOTP", "/forgotPassword", "/xen/forgotPassword", "/updatePassword", "/xen/updatePassword","/getCandidateSpectrumResults", "/xen/getCandidateSpectrumResults",
+						"/postCandidatePersonalInfo", "/xen/postCandidatePersonalInfo", "/getCandidatePersonalInfo", "/xen/getCandidatePersonalInfo", "/getOptionsList", "/xen/getOptionsList",
+						"/getCandidateValueResult", "/xen/getCandidateValueResult", "/getCandidateValueResult", "/xen/getCandidateValueResult", "/getCandidateSpectrumResults", "/xen/getCandidateSpectrumResults",
+						"/getSelfAssessments", "/xen/getSelfAssessments","/getCandidateDTPAccess", "/xen/getCandidateDTPAccess", "/getAssessments", "/xen/getAssessments", "/saveClientAssessmentBatch", "/xe/saveClientAssessmentBatch",
+						"/assignCandidatesToBatch", "/xen/assignCandidatesToBatch", "/getBatchCandidates", "/xen/getBatchCandidates", "/getBatchList", "/xen/getBatchList", "/getBatchCandidatesStatus", "/xen/getBatchCandidatesStatus",
+						"/saveJobTemplate", "/xen/saveJobTemplate", "/getAllJobTemplate", "/xen/getAllJobTemplate", "/getJobTemplate", "/xen/getJobTemplate",
+						"/saveValueTemplate", "/xen/saveValueTemplate", "/getValueTemplate", "/xen/getValueTemplate", "/getAllValueTemplate", "/xen/getAllValueTemplate",
+						"/saveTeamTemplate", "/xen/saveTeamTemplate", "/getAllTeamTemplate", "/xen/getAllTeamTemplate", "/getTeamTemplate", "/xen/getTeamTemplate",
+						"/savePreferenceTemplate", "/xen/savePreferenceTemplate", "/getAllPreferenceTemplate", "/xen/getAllPreferenceTemplate", "/getPreferenceTemplate", "/xen/getPreferenceTemplate",
+						"/authorizeClient", "/xen/authorizeClient", "/declineClient", "/xen/declineClient",
+						"/saveIcpTemplate", "/xen/saveIcpTemplate", "/getIcpTemplateResult", "/xen/getIcpTemplateResult", "/getJobDetails", "/xen/getJobDetails", "/getAllIcpTemplates", "/xen/getAllIcpTemplates",
+						"/saveJobTemplateForJob", "/xen/saveJobTemplateForJob", "/saveValueTemplateForJob", "/xen/saveValueTemplateForJob", "/saveTeamTemplateForJob", "/xen/saveTeamTemplateForJob","/savePreferenceTemplateForJob", "/xen/savePreferenceTemplateForJob",
+						"/getAllJobs", "/xen/getAllJobs", "/getAllJobCandidates", "/xen/getAllJobCandidates", "/requestDtpAccess", "/xen/requestDtpAccess", "/downloadResume", "/xen/downloadResume"
+				)	
 				.permitAll().and().authorizeHttpRequests().anyRequest().authenticated().and().sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
 				.authenticationProvider(authenticationProvider())

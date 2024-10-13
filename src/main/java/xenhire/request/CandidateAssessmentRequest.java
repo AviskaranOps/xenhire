@@ -13,10 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CandidateAssessmentRequest {
 	
-	int questionNo;
-	String question;
-	List<String> options;
-	String selectedOption;
-	String questionType;
-	String optionCategory;
+	String assessmentName;
+	String batchName;
+	List<AssessmentQuestionnaireRequest> questionList;
 }

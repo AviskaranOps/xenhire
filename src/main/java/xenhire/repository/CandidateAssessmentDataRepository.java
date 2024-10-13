@@ -29,7 +29,7 @@ public interface CandidateAssessmentDataRepository extends JpaRepository<Candida
 			+ "	left join candidate_questionnaire q on q.question_no=qo.questionnaire_no\r\n"
 			+ "	right join competency c on qo.competency_id=c.id\r\n"
 			+ "	left join pillar p on p.id=c.pillar_id \r\n"
-			+ "	where csd.candidate_id=:candidateId and csd.candidate_assessment_version_id=:versionNo order by csd.id",
+			+ "	where csd.candidate_id=:candidateId and csd.version_no=:versionNo order by csd.id",
 			nativeQuery=true
 			)
 	List<Map<String, Object>> getCandidateAssessment(long candidateId, int versionNo);
@@ -48,5 +48,10 @@ public interface CandidateAssessmentDataRepository extends JpaRepository<Candida
 		public int getpillar_id();
 		public String getpillarName();
 	}
+
+
+
+
+	List<CandidateAssessmentData> findByCandidateIdAndVersionNo(long candidateId, int versionNo);
 
 }

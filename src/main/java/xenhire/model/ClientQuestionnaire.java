@@ -30,6 +30,7 @@ public class ClientQuestionnaire {
 	String optionCategory;
 	int questionCategory;
 	int correctOption;
+	String experienceLevel;
 	Date createdAt;
 
 }

@@ -36,8 +36,18 @@ public class User {
 	String lastName;
 	String password;
 	String email;
+	String fullName;
+	String mobile;
+	String linkedIn;
+	String title;
+	String summary;
+	@Lob
+	@Column(columnDefinition = "MEDIUMBLOB")
+	byte[] resume;
+	String resumeName;
 	long otp;
 	boolean otpVerified;
+	long clientId;
 	@Lob
 	byte[] profileImage;
 	@ManyToMany(fetch = FetchType.EAGER)

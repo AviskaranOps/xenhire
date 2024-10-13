@@ -18,11 +18,25 @@ import xenhire.model.ClientSkills;
 @Builder
 public class CandidateDtpReportResponse {
 	
-	List<String> competencyRanking;
-	List<String> certifications;
-	List<CandidateSkills> Skills;
-	List<CandidateSkills> industry;
-	CandidatePreferencesForReport preferences;
-	List<String> values;
-
+	String name; 
+	String mobileNo;
+	String email;
+	String location;
+	String gender;
+	String education;
+	String summary;
+	int expert;
+	List<String> openTo;
+	boolean readyToTravel;
+	boolean readyToRelocate;
+	List<String> credentials;
+	List<CandidateTechnicalSkillResponse> technicalSkill;
+	List<CandidateValueResultResponse> coreValues;
+	List<Object> cognitiveAgility;
+	List<Object> sociabilitySkills;
+	List<Object> emtionalFlexibility;
+	List<String> pillars;
+	List<String> behaviourAttributes;
+	
+	
 }

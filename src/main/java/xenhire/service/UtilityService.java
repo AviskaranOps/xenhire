@@ -1,12 +1,19 @@
 package xenhire.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import xenhire.dto.CandidateValuesData;
+import xenhire.dto.ClientAssessmentDataResponseDTO;
 import xenhire.dto.ClientValuesData;
+import xenhire.model.AssessmentOptions;
+import xenhire.model.AssessmentQuestions;
+import xenhire.model.Assessments;
 import xenhire.model.CandidateAssessmentRanking;
 import xenhire.model.CandidateOptions;
 import xenhire.model.CandidateQuestionnaire;
@@ -16,19 +23,31 @@ import xenhire.model.ClientOptions;
 import xenhire.model.ClientQuestionnaire;
 import xenhire.model.ClientValueAssessmentData;
 import xenhire.model.Competency;
+import xenhire.model.CompetencyScore;
 import xenhire.model.Pillar;
+import xenhire.model.PillarScore;
+import xenhire.model.User;
+import xenhire.repository.AssessmentOptionsRepository;
+import xenhire.repository.AssessmentQuestionsRepository;
+import xenhire.repository.AssessmentsRepository;
 import xenhire.repository.CandidateAssessmentRankingRepository;
 import xenhire.repository.CandidateOptionsRepository;
 import xenhire.repository.CandidateQuestionnaireRepository;
 import xenhire.repository.CandidateValueAssessmentDataRepository;
 import xenhire.repository.ClientAssessmentRankingRepository;
+import xenhire.repository.ClientIcpTemplateRepository;
 import xenhire.repository.ClientOptionsRepository;
 import xenhire.repository.ClientQuestionnaireRepository;
 import xenhire.repository.ClientValueAssessmentDataRepository;
 import xenhire.repository.CompetencyRepository;
+import xenhire.repository.CompetencyScoreRepository;
 import xenhire.repository.PillarRepository;
+import xenhire.repository.PillarScoreRepository;
+import xenhire.repository.UserRepository;
 
 import java.io.IOException;
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -50,6 +69,15 @@ import org.springframework.web.bind.annotation.*;
 @Service
 public class UtilityService {
 	
+	
+	private static final String UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private static final String LOWER = "abcdefghijklmnopqrstuvwxyz";
+    private static final String DIGITS = "0123456789";
+    private static final String SPECIAL = "!@#$%^&*()-_=+<>?";
+    private static final String ALL_CHARACTERS = UPPER + LOWER + DIGITS + SPECIAL;
+    
+    private static final SecureRandom random = new SecureRandom();
+    
 	@Autowired
 	PillarRepository pillarRepository;
 	
@@ -80,7 +108,111 @@ public class UtilityService {
 	@Autowired
 	CandidateValueAssessmentDataRepository candidateValueAssessmentDataRepository;
 	
+	@Autowired
+	UserRepository userRepository;
+	
+	@Autowired
+	CompetencyScoreRepository competencyScoreRepository;
+	
+	@Autowired
+	PillarScoreRepository pillarScoreRepository;
+	
+	@Autowired
+	ClientIcpTemplateRepository clientIcpTemplateRepository;
+	
+	@Autowired
+	AssessmentsRepository assessmentsRepository;
+	
+	@Autowired
+	AssessmentQuestionsRepository assessmentQuestionsRepository;
+	
+	@Autowired
+	AssessmentOptionsRepository assessmentOptionsRepository;
+	
+	
 
+	
+	public String getLoggedInUsername(long id) {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        return authentication.getName();
+		Optional<User> userOpt = userRepository.findById(id);
+		return userOpt.get().getUsername();
+    }
+	
+	
+	public ResponseEntity<Object> postAssessments(MultipartFile file) throws IOException {
+		 Workbook workbook = new XSSFWorkbook(file.getInputStream());
+	     Sheet sheet = workbook.getSheetAt(0);
+	     int rowCount = sheet.getLastRowNum();
+	     boolean assessmentInjestion = false;
+	     int sNo = 0;
+	     AssessmentQuestions questions = null;
+	     Assessments asses = null;
+	     for(int rowNo = 2; rowNo <= rowCount; rowNo++) {
+	    	 Row row = sheet.getRow(rowNo);
+	    	 Cell cell1 = row.getCell(0);
+	    	 Cell cell2 = row.getCell(1);
+	    	 Cell cell3 = row.getCell(2);
+	    	 Cell cell4 = row.getCell(3);	
+	    	 Cell cell5 = row.getCell(4);
+	    	 Cell cell6 = row.getCell(5);
+	    	 Cell cell7 = row.getCell(6);
+	    	 Cell cell8 = row.getCell(7);
+	    	 Cell cell9 = row.getCell(8);
+	    	 Cell cell10 = row.getCell(9);
+	    	 Cell cell11 = row.getCell(10);
+	    	 Cell cell12 = row.getCell(11);
+	    	 
+	    	 if(cell1 == null) {
+	        		break;
+	         }
+	    	 
+	    	 int questionNo = (int) cell1.getNumericCellValue();
+	    	 String question = cell3.getStringCellValue();
+	    	 String option = cell4.getStringCellValue();
+	    	 String competency = cell5.getStringCellValue();
+	    	 String pillar = cell6.getStringCellValue();
+	    	 String ratingType = cell7.getStringCellValue();
+	    	 int rating = (int) cell8.getNumericCellValue();
+	    	 float weightage = (float) cell9.getNumericCellValue();
+	    	 String scoringType = cell10.getStringCellValue();
+	    	 String Dimension = cell11.getStringCellValue();
+	    	 String testType = cell12.getStringCellValue();
+	    	 if(assessmentInjestion == false) {
+		    	 Competency c = competencyRepository.findByName(competency);
+		    	 Optional<Pillar> p = pillarRepository.findByName(pillar);
+		    	 Pillar p1 = p.get();
+		    	 asses = assessmentsRepository.findByName(competency);
+		    	 asses.setCompetencyId(c.getId());
+		    	 asses.setPillarId(p1.getId());
+		    	 asses.setScoringType(scoringType);
+		    	 assessmentsRepository.save(asses);
+		    	 assessmentInjestion = true;
+	    	 }
+	    	 if(questionNo != sNo) {
+		    	 questions = new AssessmentQuestions();
+		    	 questions.setAssessmentId(asses.getId());
+		    	 questions.setQuestionNo(questionNo);
+		    	 questions.setQuestion(question);
+		    	 assessmentQuestionsRepository.save(questions);
+		    	 sNo ++;
+		     }
+	    	 
+	    	 AssessmentOptions options = new AssessmentOptions();
+	    	 options.setDimension(Dimension);
+	    	 options.setOptionDesc(option);
+	    	 options.setOptionType(ratingType);
+	    	 options.setRating(rating);
+	    	 options.setWeightage(weightage);
+	    	 options.setQuestionId(questions.getId());
+	    	 assessmentOptionsRepository.save(options);
+	     }
+	     
+		
+		return new ResponseEntity<>("saved", null, HttpStatus.OK);
+	}
+	
+	
 	public ResponseEntity<Object> postClientQuestionnaire(MultipartFile file) throws IOException {
 		// TODO Auto-generated method stub
 		
@@ -141,14 +273,28 @@ public class UtilityService {
         	String pillar = cell4.getStringCellValue();
         	System.out.println(pillar);
         	Optional<Pillar> p = pillarRepository.findByName(pillar.trim());
-        	
+        	System.out.println(p.get());
         	Cell cell5 = row.getCell(3);
         	String competency = cell5.getStringCellValue();
-        	System.out.println(competency);
+        	System.out.println(competency.trim());
         	Competency c = competencyRepository.findByNameAndPillarId(competency.trim(), p.get().getId());
         	co.setCompetencyId(c.getId());
         	
         	co.setCreatedAt(new Date());
+        	Cell cell7 = row.getCell(7);
+        	int weightage = 0;
+        	String scoringType = "weightage normalise";
+        	System.out.println(questionOptionType.contains("Ranking"));
+        	if(cell6.getStringCellValue().contains("Ranking")) {
+            	co.setWeightage(-1);
+            	co.setScoringType("NULL");
+        	}
+        	else {
+        		weightage = (int) row.getCell(7).getNumericCellValue();
+        		scoringType = row.getCell(8).getStringCellValue();
+            	co.setWeightage(weightage);
+            	co.setScoringType(scoringType);
+        	}
         	
         	clientOptionsRepository.save(co);
             
@@ -171,32 +317,37 @@ public class UtilityService {
         int optionNo = 1;
         int i = 0;
         List<Map> ansList = new ArrayList();
-        for (int rowNo = 2; rowNo <= rowCount; rowNo++) {
+        for (int rowNo = 1; rowNo <= rowCount; rowNo++) {
+        	
+        	
         	CandidateQuestionnaire cq = new CandidateQuestionnaire();
         	Row row = sheet.getRow(rowNo);
         	System.out.println(row.getCell(0));
         	
         	Cell cell0 = row.getCell(0);
+        	if(cell0 == null) {
+        		break;
+        	}
         	int questionNo = (int) cell0.getNumericCellValue();
         	cq.setQuestionNo(questionNo);
         	
         	Cell cell1 = row.getCell(1);
         	cq.setQuestion(cell1.getStringCellValue());
         	
-        	Cell cell3 = row.getCell(3);
+//        	Cell cell3 = row.getCell(3);
         	cq.setCorrectOption(-1);
         	
-        	Cell cell6 = row.getCell(6);
+        	Cell cell5 = row.getCell(5);
         	String questionOptionType = "RATING";
-        	if(cell6.getStringCellValue().contains("Ranking") == true) {
+        	if(cell5.getStringCellValue().contains("Ranking") == true) {
                 questionOptionType = "RANKING";
             }
         	cq.setOptionType(questionOptionType);
         	
-        	Cell cell7 = row.getCell(7);
-        	cq.setSection(cell7.getStringCellValue());
+//        	Cell cell7 = row.getCell(7);
+        	cq.setSection("section1");
         	
-        	cq.setOptionCategory(cell6.getStringCellValue());
+        	cq.setOptionCategory(cell5.getStringCellValue());
         	
         	cq.setCreatedAt(new Date());
         	
@@ -211,12 +362,8 @@ public class UtilityService {
         	
         	Cell cell2 = row.getCell(2);
         	String optionDesc = "";
-        	if(questionNo == 53) {
-        		optionDesc = cell2.getNumericCellValue() + "";
-        	}
-        	else {
-        		optionDesc = cell2.getStringCellValue();
-        	}
+
+        	optionDesc = cell2.getStringCellValue();
         	
         	co.setOptionDesc(optionDesc);
         	
@@ -225,14 +372,14 @@ public class UtilityService {
         	co.setQuestionnaireNo(cq.getQuestionNo());
         	
         	
-        	Cell cell5 = row.getCell(5);
-        	String pillar = cell5.getStringCellValue();
+        	Cell cell4 = row.getCell(4);
+        	String pillar = cell4.getStringCellValue();
         	System.out.println(pillar);
         	Optional<Pillar> p = pillarRepository.findByName(pillar.trim());
-        	//System.out.println(p.get().getId());
+        	System.out.println(p.get());
         	
-        	Cell cell4 = row.getCell(4);
-        	String competency = cell4.getStringCellValue();
+        	Cell cell3 = row.getCell(3);
+        	String competency = cell3.getStringCellValue();
         	System.out.println(competency);
         	Competency c = null;
         	if(p.isEmpty()) {
@@ -250,18 +397,34 @@ public class UtilityService {
         	}
         	
         	co.setCreatedAt(new Date());
+        	Cell cell7 = row.getCell(7);
+        	int weightage = 0;
+        	String scoringType = "weightage normalise";
+        	System.out.println(questionOptionType.contains("Ranking"));
+        	if(cell5.getStringCellValue().contains("Ranking") || (questionNo >= 56 && questionNo <= 61)) {
+            	co.setWeightage(-1);
+            	co.setScoringType("NULL");
+        	}
+        	else {
+        		weightage = (int) row.getCell(7).getNumericCellValue();
+        		scoringType = row.getCell(8).getStringCellValue();
+            	co.setWeightage(weightage);
+            	co.setScoringType(scoringType);
+        	}
         	
         	candidateOptionsRepository.save(co);
         	
         	
-        	if(questionOptionType.equals("RATING") && cell3.getStringCellValue().equals("Correct")) {
+        	if((questionNo >= 56 && questionNo <= 61) && cell7.getStringCellValue().equals("Correct")) {
         		Map correctAns = new HashMap();
         		correctAns.put(optionDesc, questionNo);
         		ansList.add(correctAns);
         	}
+        	
             
             optionNo ++;
             i++;
+            
         }
         workbook.close();
         
@@ -280,9 +443,9 @@ public class UtilityService {
 	
 	
 	
-	public int getJobMatchingScores(long clientId, long candidateId){
+	public int getJobMatchingScores(long clientId, long icpId, long valuesId, long candidateId){
 		
-		List<ClientAssessmentRanking> clientRankingList = clientAssessmentRankingRepository.findByClientId(clientId);
+		List<ClientAssessmentRanking> clientRankingList = clientAssessmentRankingRepository.findByClientIdAndTemplateNo(clientId, icpId);
 		List<CandidateAssessmentRanking> candidateRankingList = candidateAssessmentRankingRepository.findByCandidateId(candidateId);
 		
 		 int clientPillarScore = 0;
@@ -307,7 +470,7 @@ public class UtilityService {
                     values = true;
                     clientPillarScore = clientRanking.getPillarScore();
                     candidatePillarScore = candidateRanking.getPillarScore();
-                    score = GetValueScore(clientId, candidateId, clientPillarScore, candidatePillarScore);
+                    score = GetValueScore(clientId, valuesId, candidateId, clientPillarScore, candidatePillarScore);
                     System.out.println("values = " + score);
                 }
                 if(clientRanking.getPillar().equals("Skills and Proficiency") && candidateRanking.getPillar().equals("Skills and Proficiency") && skillsAndProficiency == false){
@@ -356,7 +519,7 @@ public class UtilityService {
      }
 
 	 
-	private int GetValueScore(long clientId, long candidateId, int clientPillarScore, int candidatePillarScore) {
+	private int GetValueScore(long clientId, long valuesId, long candidateId, int clientPillarScore, int candidatePillarScore) {
 		System.out.println(clientPillarScore + " " + candidatePillarScore);
 		// TODO Auto-generated method stub
 		 List<String> mostLikely = new ArrayList<String>();
@@ -377,7 +540,8 @@ public class UtilityService {
          valuesList.add("Benevolence");
          valuesList.add("Universalism");
 
-         ClientValueAssessmentData cvd = clientValueAssessmentDataRepository.findByClientId(clientId);
+         Optional<ClientValueAssessmentData> cvdOpt = clientValueAssessmentDataRepository.findById(valuesId);
+         ClientValueAssessmentData cvd = cvdOpt.get();
          System.out.println(cvd);
          List<CandidateValueAssessmentData> candidateValuesList = candidateValueAssessmentDataRepository.findByCandidateId(candidateId);
          for(CandidateValueAssessmentData cand : candidateValuesList) {
@@ -573,6 +737,169 @@ public class UtilityService {
 
          return valuesScore;
 	}
+	
+	
+	
+	
+	public void extractClientAssessmentScoreAndSave(long clientId, long templateNo, int template) {
+		
+		System.out.println("client ranking is called = " + clientId);
+		
+		List<Map<String, Object>> dataList = clientIcpTemplateRepository.getClientAssessment(clientId, templateNo);
+		List<ClientAssessmentDataResponseDTO> respList = new ArrayList();
+		
+		for(Map<String, Object> m : dataList) {
+			ClientAssessmentDataResponseDTO data = new ClientAssessmentDataResponseDTO();
+			data.setCompetencyId((long) m.get("competency_id"));
+			data.setCorrectOption((int) m.get("correct_option"));
+			data.setOptionDesc(m.get("option_desc").toString());
+			data.setOptionLevel(m.get("option_level").toString());
+			data.setOptionNo((long) m.get("option_no"));
+			data.setOptionType(m.get("option_type").toString());
+			data.setPillar_id((long) m.get("pillar_id"));
+			data.setPillarName(m.get("pillarName").toString());
+			data.setCompetencyName(m.get("competencyName").toString());
+			data.setTemplateName(m.get("template_name").toString());
+			data.setWeightage((int) m.get("weightage"));
+			data.setCreatedBy(m.get("created_by").toString());
+			respList.add(data);
+		}
+		
+		System.out.println("client ranking is called = " + respList);
+		
+		
+		List<ClientAssessmentDataResponseDTO> rankingPillar = respList.stream().filter(card -> card.getOptionType().equals("Ranking_Pillar")).collect(Collectors.toList());
+														
+		List<ClientAssessmentDataResponseDTO> rankingCompetency = respList.stream().filter(card -> card.getOptionType().equals("Ranking_Competency")).toList(); 
+		List<ClientAssessmentDataResponseDTO> rating = respList.stream().filter(card -> card.getOptionType().equals("Rating")).toList(); 
+		
+		respList.forEach(System.out::println);
+//		System.out.println(rankingCompetency);
+//		System.out.println(rating);
+		 int pillarRank = 1;
+		 int competencyRank = 1;
+		 String competency = "";
+		for(ClientAssessmentDataResponseDTO data1 : rankingPillar) {
+			System.out.println("pillar iteration " + pillarRank);
+			if(data1.getPillarName().equals("Values") || data1.getPillarName().equals("Skills and Proficiency")) {
+				CompetencyScore cs = competencyScoreRepository.findByCompetencyRank(competencyRank);
+				PillarScore ps = pillarScoreRepository.findByPillarRank(pillarRank);
+				
+				ClientAssessmentRanking car = new ClientAssessmentRanking();
+				car.setCompetency(data1.getCompetencyName());
+				car.setCompetencyRank(competencyRank);
+				car.setPillar(data1.getPillarName());
+				car.setPillarRank(pillarRank);
+				car.setCompetencyScore(cs.getCompetencyScore());
+				car.setPillarScore(ps.getPillarScore());
+				car.setMaxScore(cs.getCompetencyScore());
+				car.setClientId(clientId);
+				car.setCreatedAt(LocalDateTime.now());
+				car.setRating("Low");
+				car.setTemplateNo(templateNo);
+				car.setTemplateName(data1.getTemplateName());
+				car.setCreatedBy(data1.getCreatedBy());
+				car.setTemplate(template == 0 ? false : true);
+				clientAssessmentRankingRepository.save(car);
+				
+				if(pillarRank == 4) { competencyRank ++; }
+				else { competencyRank = competencyRank + 4; }
+			}
+			
+			for(ClientAssessmentDataResponseDTO data2 : rankingCompetency) {
+				
+				if(data2.getPillarName().equals(data1.getPillarName())) {
+					System.out.println(data2.getCompetencyName());
+					for(ClientAssessmentDataResponseDTO data3 : rating) {
+//						System.out.println(data2.getCompetencyName());
+//						System.out.println(data3.getCompetencyName());
+						if(data2.getCompetencyName().equals(data3.getCompetencyName())) {
+							System.out.println(competencyRank);
+							CompetencyScore cs = competencyScoreRepository.findByCompetencyRank(competencyRank);
+							PillarScore ps = pillarScoreRepository.findByPillarRank(pillarRank);
+							ClientAssessmentRanking car = clientAssessmentRankingRepository.findByCompetency(data3.getCompetencyName());
+							String rate = data3.getOptionLevel();
+							int weightage = data3.getWeightage();
+							if(car != null) {
+								weightage = (car.getWeightage() + data3.getWeightage()) / (car.getCount() + 1);
+								if(weightage > 60) {
+									rate = "High";
+								}
+								if(weightage > 40 && weightage < 60) {
+									rate = "Med";
+								}
+								if(weightage <= 40) {
+									rate = "Low";
+								}	
+							}
+							if(car == null) {
+								car = new ClientAssessmentRanking();
+							}
+							
+							car.setCompetency(data3.getCompetencyName());
+							car.setCompetencyRank(competencyRank);
+							car.setPillar(data1.getPillarName());
+							car.setPillarRank(pillarRank);
+							car.setCompetencyScore(cs.getCompetencyScore());
+							car.setPillarScore(ps.getPillarScore());
+							car.setMaxScore(cs.getCompetencyScore());
+							car.setClientId(clientId);
+							car.setCreatedAt(LocalDateTime.now());
+							car.setRating(rate);
+							car.setTemplateName(data1.getTemplateName());
+							car.setCreatedBy(data1.getCreatedBy());
+							car.setTemplateNo(templateNo);
+							car.setCount(car.getCount() + 1);
+							car.setWeightage(data3.getWeightage() + car.getWeightage());
+							car.setTemplate(template == 0 ? false : true);
+							clientAssessmentRankingRepository.save(car);
+						}
+					
+					}
+					
+					 if(pillarRank == 5) pillarRank ++;
+					 competencyRank ++; 
+				}
+				
+			}
+			pillarRank ++;
+		}
+	}
+	
+	
+	public  String generatePassword(int length) {
+        StringBuilder password = new StringBuilder(length);
+
+        // Ensure password contains at least one character from each category
+        password.append(UPPER.charAt(random.nextInt(UPPER.length())));
+        password.append(LOWER.charAt(random.nextInt(LOWER.length())));
+        password.append(DIGITS.charAt(random.nextInt(DIGITS.length())));
+        password.append(SPECIAL.charAt(random.nextInt(SPECIAL.length())));
+
+        // Fill the remaining characters with random selections from ALL_CHARACTERS
+        for (int i = 4; i < length; i++) {
+            password.append(ALL_CHARACTERS.charAt(random.nextInt(ALL_CHARACTERS.length())));
+        }
+
+        // Shuffle the characters in the password to remove any predictable patterns
+        return shuffleString(password.toString());
+    }
+
+    private static String shuffleString(String input) {
+        char[] a = input.toCharArray();
+        for (int i = 0; i < a.length; i++) {
+            int j = random.nextInt(a.length);
+            // Swap characters at positions i and j
+            char temp = a[i];
+            a[i] = a[j];
+            a[j] = temp;
+        }
+        return new String(a);
+    }
+
+	
+	
+	
 	
 
 }

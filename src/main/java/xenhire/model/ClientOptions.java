@@ -27,6 +27,8 @@ public class ClientOptions {
 	int questionnaireNo;
 	long competencyId;
 	String optionLevel;
+	int weightage;
+	String scoringType;
 	Date createdAt;
 
 }

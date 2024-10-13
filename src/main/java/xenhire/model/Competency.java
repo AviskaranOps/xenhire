@@ -24,6 +24,9 @@ public class Competency {
 	String name;
 	String description;
 	long pillarId;
+	String low;
+	String medium;
+	String high;
 	Date createdAt;
 
 }

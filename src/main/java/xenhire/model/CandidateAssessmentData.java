@@ -1,5 +1,6 @@
 package xenhire.model;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import jakarta.persistence.Entity;
@@ -22,10 +23,11 @@ public class CandidateAssessmentData {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	long id;
 	long candidateId;
+	int versionNo;
 	long candidateAssessmentVersionId;
 	int questionNo;
 	String optionType;
 	long optionNo;
 	int section;
-	Date createdAt;
+	LocalDateTime createdAt;
 }

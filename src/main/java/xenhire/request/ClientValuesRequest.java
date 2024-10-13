@@ -1,6 +1,7 @@
 package xenhire.request;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,9 +14,9 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ClientValuesRequest {
 	
-	String value;
-	int rating;
-	
-	
+	List<ValuesRating> ratingList;
+	String templateName;
+	String templateTag;
+	String templateDescription;
 
 }

@@ -1,5 +1,6 @@
 package xenhire.service;
 
+import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.HashSet;
@@ -14,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import xenhire.model.Role;
 import xenhire.model.User;
@@ -47,14 +49,25 @@ public class UserService {
 	
 	public ResponseEntity<Object> userSignup(SignupRequest req) throws MessagingException{
 		System.out.println(req);
-		User u = userRepository.findByEmailOrUsername(req.getEmail(), req.getUsername());
+		User u = userRepository.findByEmail(req.getEmail());
 		if(u != null) {
 			return new ResponseEntity<>("user already existed", null, HttpStatus.BAD_REQUEST);
 		}
-		Role r = roleRepository.findByName("USER");
+		Role r = roleRepository.findByName("CANDIDATE");
 		Set s = new HashSet();
 		s.add(r);
 		int otp = secureRandom.nextInt((int) Math.pow(10, OTP_LENGTH));
+		
+		int count = 0;
+		int currentNum = Math.abs(otp);
+
+		  while (currentNum > 0) {
+		    currentNum /= 10; 
+		    count++;
+		  }
+		  
+		  if(count < 4) otp = otp * 10;
+		
 		u = User.builder()
 				.username(req.getUsername())
 				.email(req.getEmail())
@@ -104,9 +117,10 @@ public class UserService {
 	
 	
 	public ResponseEntity<Object> updatePassword(PasswordRequest req) {
-		User u = userRepository.findByEmail(req.getEmailId());
+		System.out.println("req = " + req);
+		User u = userRepository.findByEmail(req.getEmail());
 		if(u != null) {
-			String npass = bCryptPasswordEncoder.encode(req.getNewPassword());
+			String npass = bCryptPasswordEncoder.encode(req.getPassword());
 			u.setPassword(npass);
 			userRepository.save(u);
 			return new ResponseEntity<>("updated successfully", null, HttpStatus.OK);
@@ -148,6 +162,7 @@ public class UserService {
 		if(u != null) {
 			int otp = secureRandom.nextInt((int) Math.pow(10, OTP_LENGTH));
 			u.setOtp(otp);
+			userRepository.save(u);
 			String body = "One Time Password to update your xenflexer account password " + otp;
 			emailService.sendSimpleEmail(emailId, "verify your account", body);	
 			return new ResponseEntity<>("user found", null, HttpStatus.OK);
@@ -155,6 +170,16 @@ public class UserService {
 		else {
 			return new ResponseEntity<>("user not found", null, HttpStatus.BAD_REQUEST);
 		}
+	}
+	
+	
+	public ResponseEntity<Object> uploadResume(MultipartFile file, long candidateId) throws IOException{
+		Optional<User> uOpt = userRepository.findById(candidateId);
+		User u = uOpt.get();
+		u.setResume(file.getBytes());
+		u.setResumeName(file.getOriginalFilename());
+		userRepository.save(u);
+		return new ResponseEntity<>("saved", null, HttpStatus.OK);
 	}
 
 }

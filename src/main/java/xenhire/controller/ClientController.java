@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import xenhire.model.ClientSettings;
 import xenhire.model.ClientValueAssessmentData;
+import xenhire.request.ClientAssessmentBatchRequest;
 import xenhire.request.ClientAssessmentRequest;
 import xenhire.request.ClientFormRequest;
 import xenhire.service.ClientService;
@@ -133,5 +135,48 @@ public class ClientController {
 		}
 		
 	}
+	
+	
+	@PostMapping("/saveClientSettings")
+	public ResponseEntity<Object> saveClientSettings(@RequestParam("clientId") long clientId, @RequestBody ClientSettings req){
+		
+		try {
+			return clientService.saveClientSettings(clientId, req);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(e.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+	}
+
+	
+	@GetMapping("/getClientSettings")
+	public ResponseEntity<Object> getClientSettings(@RequestParam("clientId") long clientId){
+		
+		try {
+			return clientService.getClientSettings(clientId);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(e.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+	}
+	
+	
+	@GetMapping("/getClientDashboardData")
+	public ResponseEntity<Object> getClientDashboardData(@RequestParam("clientId") long clientId){
+		
+		try {
+			return clientService.getClientDashboardData(clientId);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(e.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	
 
 }

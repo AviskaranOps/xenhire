@@ -22,6 +22,8 @@ public class ClientAssessmentData {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	long id;
 	long clientId;
+	String templateName;
+	String createdBy;
 	long clientAssessmentVersionId;
 	int questionNo;
 	String optionType;

@@ -15,4 +15,6 @@ public interface CandidateValueAssessmentDataRepository extends JpaRepository<Ca
 
 	List<CandidateValueAssessmentData> findByCandidateId(long candidateId);
 
+	List<CandidateValueAssessmentData> findByCandidateIdAndVersionNo(long candidateId, long versionNo);
+
 }

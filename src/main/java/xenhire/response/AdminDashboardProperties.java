@@ -1,20 +1,17 @@
 package xenhire.response;
 
-import java.util.Date;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import xenhire.model.CandidateAssessmentData;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class CandidateAssessmentResponse {
+public class AdminDashboardProperties {
 	
-	int versionNo;
-	int savedSection;
-	boolean nextSection;
+	long clients;
+	long applicants;
+	long jobs;
 }

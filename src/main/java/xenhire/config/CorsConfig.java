@@ -10,8 +10,18 @@ public class CorsConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:3000", "https://xenflexer.netlify.app", "https://xenflexer.com") // Replace with your React app URL
+                .allowedOrigins(
+                			"http://localhost:3000", 
+                			"http://localhost:3001", 
+                			"https://xenflexer.com", 
+                			"https://xenrecruit.com", 
+                			"http://xenrecruit.com",
+                			"http://xentalenthub.com",
+                			"https://xentalenthub.com"
+                		) 
                 .allowedMethods("GET", "POST", "PUT", "DELETE")
+                .allowedHeaders("*")
+                .exposedHeaders("Content-Disposition") // Expose Content-Disposition
                 .allowCredentials(true);
     }
 }

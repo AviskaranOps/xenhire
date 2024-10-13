@@ -1,64 +1,90 @@
 package xenhire.service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import xenhire.dto.ClientAssessmentDataResponseDTO;
+import xenhire.model.Assessments;
 import xenhire.model.CandidateAssessmentRanking;
 import xenhire.model.CandidateSkills;
+import xenhire.model.Client;
+import xenhire.model.ClientAssessmentBatch;
 import xenhire.model.ClientAssessmentData;
+import xenhire.model.ClientAssessmentPerBatch;
 import xenhire.model.ClientAssessmentVersion;
 import xenhire.model.ClientCompanyDetails;
 import xenhire.model.ClientDetails;
 import xenhire.model.ClientOptions;
 import xenhire.model.ClientPreferences;
 import xenhire.model.ClientQuestionnaire;
+import xenhire.model.ClientSettings;
 import xenhire.model.ClientSkills;
 import xenhire.model.ClientTeamDetails;
 import xenhire.model.ClientValueAssessmentData;
 import xenhire.model.CompetencyScore;
 import xenhire.model.PillarScore;
+import xenhire.model.User;
 import xenhire.repository.CandidateAssessmentRankingRepository;
+import xenhire.repository.ClientAssessmentBatchRepository;
 import xenhire.repository.ClientAssessmentDataRepository;
 import xenhire.repository.ClientAssessmentDataRepository.ClientAssessmentResponseData;
+import xenhire.repository.ClientAssessmentPerBatchRepository;
 import xenhire.model.ClientAssessmentRanking;
 import xenhire.repository.ClientAssessmentRankingRepository;
 import xenhire.repository.ClientAssessmentVersionRepository;
 import xenhire.repository.ClientCompanyDetailsRepository;
 import xenhire.repository.ClientDetailsRepository;
+import xenhire.repository.ClientJobDetailsRepository;
 import xenhire.repository.ClientOptionsRepository;
 import xenhire.repository.ClientPreferencesRepository;
 import xenhire.repository.ClientQuestionnaireRepository;
+import xenhire.repository.ClientRepository;
+import xenhire.repository.ClientSettingsRepository;
 import xenhire.repository.ClientSkillsRepository;
 import xenhire.repository.ClientTeamDetailsRepository;
 import xenhire.repository.ClientValueAssessmentDataRepository;
 import xenhire.repository.ClientValuesDataRepository;
 import xenhire.repository.CompetencyScoreRepository;
+import xenhire.repository.JobAssignedCandidatesRepository;
 import xenhire.repository.PillarScoreRepository;
+import xenhire.repository.UserRepository;
+import xenhire.repository.AssessmentsRepository;
 import xenhire.repository.CandidateAssessmentDataRepository.CandidateAssessmentResponseData;
+import xenhire.request.ClientAssessmentBatchRequest;
 import xenhire.request.ClientAssessmentRequest;
 import xenhire.request.ClientCompanyForm;
 import xenhire.request.ClientFormRequest;
 import xenhire.request.ClientPreferenceForm;
 import xenhire.request.ClientTeamForm;
 import xenhire.request.ClientValuesRequest;
+import xenhire.request.ValuesRating;
+import xenhire.response.AssessmentsResponse;
+import xenhire.response.ClientDashboardDataResponse;
 import xenhire.response.ClientIcpReportResponse;
 import xenhire.response.ClientPreferencesForReport;
 import xenhire.response.ClientQuestionnaireResponse;
 import xenhire.response.CompetencyRanking;
+import xenhire.response.PaginatedResponse;
 import xenhire.response.PillarRanking;
 import xenhire.response.UserSkills;
 
@@ -110,6 +136,30 @@ public class ClientService {
 	
 	@Autowired
 	UtilityService utilityService;
+	
+	@Autowired
+	AssessmentsRepository assessmentsRepository;
+	
+	@Autowired
+	ClientAssessmentBatchRepository clientAssessmentBatchRepository;
+	
+	@Autowired
+	ClientAssessmentPerBatchRepository clientAssessmentPerBatchRepository;
+	
+	@Autowired
+	ClientSettingsRepository clientSettingsRepository;
+	
+	@Autowired
+	JobAssignedCandidatesRepository jobAssignedCandidatesRepository;
+	
+	@Autowired
+	ClientJobDetailsRepository clientJobDetailsRepository;
+	
+	@Autowired
+	UserRepository userRepository;
+	
+	@Autowired
+	ClientRepository clientRepository;
 	
 
 	public ResponseEntity<Object> getClientQuestionnaire() {
@@ -272,9 +322,9 @@ public class ClientService {
 	}
 	
 	
-	public ResponseEntity<Object> saveClientValues(List<ClientValuesRequest> reqList, long clientId){
+	public ResponseEntity<Object> saveClientValues(ClientValuesRequest reqList, long clientId){
 		ClientValueAssessmentData cvd = new ClientValueAssessmentData();
-		for(ClientValuesRequest req : reqList) {
+		for(ValuesRating req : reqList.getRatingList()) {
 				if(req.getValue().equals("stimulation")) cvd.setStimulation(req.getRating());
 				if(req.getValue().equals("selfDirection")) cvd.setSelfDirection(req.getRating());
 				if(req.getValue().equals("hedonism")) cvd.setHedonism(req.getRating());
@@ -286,6 +336,9 @@ public class ClientService {
 				if(req.getValue().equals("benevolence")) cvd.setBenevolence(req.getRating());
 				if(req.getValue().equals("universalism")) cvd.setUniversalism(req.getRating());
 		}
+		cvd.setTemplateName(reqList.getTemplateName());
+		cvd.setTemplateTag(reqList.getTemplateTag());
+		cvd.setTemplateDescription(reqList.getTemplateDescription());
 		clientValuesDataRepository.save(cvd);
 		
 		return new ResponseEntity<>("saved", null, HttpStatus.CREATED);
@@ -385,7 +438,7 @@ public class ClientService {
 		// TODO Auto-generated method stub
 		int versionNo = clientValueAssessmentDataRepository.getMaxVersion(clientId);
 		req.setClientId(clientId);
-		req.setCreatedAt(new Date());
+		req.setCreatedAt(LocalDateTime.now());
 		req.setVersionNo(versionNo + 1);
 		clientValueAssessmentDataRepository.save(req);
 		return new ResponseEntity<>("data saved successfully", null, HttpStatus.CREATED);
@@ -393,10 +446,10 @@ public class ClientService {
 
 	public ResponseEntity<Object> getMatchingScore(long clientId, long candidateId) {
 		// TODO Auto-generated method stub
-		int score = utilityService.getJobMatchingScores(clientId, candidateId);
-		Map resp = new HashMap();
-		resp.put("score", score);
-		return new ResponseEntity<>(resp, null, HttpStatus.OK);
+//		int score = utilityService.getJobMatchingScores(clientId, candidateId);
+//		Map resp = new HashMap();
+//		resp.put("score", score);
+		return new ResponseEntity<>(null, null, HttpStatus.OK);
 	}
 	
 	public ResponseEntity<Object> getClientIcpReport(long clientId) {
@@ -502,5 +555,43 @@ public class ClientService {
 		
 		return null;
 	}
+
+	public ResponseEntity<Object> saveClientSettings(long clientId, ClientSettings req) {
+		// TODO Auto-generated method stub
+		System.out.println(req);
+		Optional<User> uOpt = userRepository.findById(clientId);
+		Optional<Client> cliOpt = clientRepository.findById(uOpt.get().getClientId());
+		req.setClientId(cliOpt.get().getId());
+		clientSettingsRepository.save(req);
+		return new ResponseEntity<>(req, null, HttpStatus.OK);
+	}
+
+	public ResponseEntity<Object> getClientSettings(long clientId) {
+		// TODO Auto-generated method stub
+		Optional<User> uOpt = userRepository.findById(clientId);
+		Optional<Client> cliOpt = clientRepository.findById(uOpt.get().getClientId());
+		ClientSettings cs = clientSettingsRepository.findByClientId(cliOpt.get().getId());
+		return new ResponseEntity<>(cs, null, HttpStatus.OK);
+	}
+
+	public ResponseEntity<Object> getClientDashboardData(long clientId) {
+		// TODO Auto-generated method stub
+		Optional<User> uOpt = userRepository.findById(clientId);
+		Optional<Client> cliOpt = clientRepository.findById(uOpt.get().getClientId());
+		int assignedCandidates = jobAssignedCandidatesRepository.getCandidatesCount(clientId);
+		int jobCount = clientJobDetailsRepository.getJobsCount(clientId);
+		int assessmentCount = clientAssessmentBatchRepository.getAssessmentsCount(clientId);
+		ClientDashboardDataResponse resp = new ClientDashboardDataResponse();
+		resp.setAssessmentCount(assessmentCount);
+		resp.setCandidatesCount(assignedCandidates);
+		resp.setJobCount(jobCount);
+		resp.setCompanyName(cliOpt.isPresent() ? cliOpt.get().getCompanyName() : "");
+		
+		return new ResponseEntity<>(resp, null, HttpStatus.OK);
+	}
+	
+	
+	
+	
 
 }

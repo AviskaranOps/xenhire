@@ -10,5 +10,8 @@ public interface ClientSkillsRepository extends JpaRepository<ClientSkills, Long
 
 	List<ClientSkills> findByClientId(long clientId);
 
+	List<ClientSkills> findByClientPreferencesId(long id);
+
+
 	
 }

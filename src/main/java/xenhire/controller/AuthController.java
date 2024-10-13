@@ -12,6 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.context.Context;
 
 import xenhire.dto.UserDTO;
@@ -56,9 +57,6 @@ public class AuthController {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword())
             );
-        } catch (BadCredentialsException e) {
-            throw new Exception("Incorrect username or password", e);
-        }
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
         
@@ -68,6 +66,11 @@ public class AuthController {
         User user = userDetailsService.getUserDetails(authenticationRequest.getUsername());
         Role role = user.getRoles().stream().findFirst().get();
         return ResponseEntity.ok(new AuthResponse(user.getId(), user.getUsername(), user.getEmail(), jwt, "ROLE_"+role.getName()));
+    	}
+        catch (BadCredentialsException e) {
+        	e.printStackTrace();
+            throw new Exception("Incorrect username or password", e);
+        }
     }
     
     @GetMapping("/getEncryptedPass")
@@ -94,6 +97,19 @@ public class AuthController {
     		return userService.verifyOTP(req);
     	}
     	catch(Exception e) {
+    		e.printStackTrace();
+    		return new ResponseEntity<>(e.getMessage(), null, HttpStatus.OK);
+    	}
+    }
+    
+    
+    @PostMapping("/uploadCandidateResume")
+    public ResponseEntity<Object> uplaodCandidateResume(@RequestParam("file") MultipartFile file, @RequestParam("candidateId") long candidateId){
+    	try {
+    		return userService.uploadResume(file, candidateId);
+    	}
+    	catch(Exception e) {
+    		e.printStackTrace();
     		return new ResponseEntity<>(e.getMessage(), null, HttpStatus.OK);
     	}
     }
@@ -105,6 +121,7 @@ public class AuthController {
     		return userService.updatePassword(req);
     	}
     	catch(Exception e) {
+    		e.printStackTrace();
     		return new ResponseEntity<>(e.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);	
     	}
     }
