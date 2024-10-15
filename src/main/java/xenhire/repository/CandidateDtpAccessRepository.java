@@ -58,4 +58,7 @@ public interface CandidateDtpAccessRepository extends JpaRepository<CandidateDtp
 	@Query(value="select ifnull(count(*), 0) from candidate_dtp_access where candidate_id=:candidateId", nativeQuery=true)
 	int getAuthorizedClientCount(long candidateId);
 
+
+    List<CandidateDtpAccess> findByClientIdAndCandidateIdOrderByCreatedAtDesc(long id, long candidateId);
+
 }

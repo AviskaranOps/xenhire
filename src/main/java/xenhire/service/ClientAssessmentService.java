@@ -30,12 +30,14 @@ import xenhire.model.Assessments;
 import xenhire.model.BatchAssessmentCandidates;
 import xenhire.model.ClientAssessmentBatch;
 import xenhire.model.ClientAssessmentPerBatch;
+import xenhire.model.JobAssignedCandidates;
 import xenhire.model.Role;
 import xenhire.model.User;
 import xenhire.repository.AssessmentsRepository;
 import xenhire.repository.BatchAssessmentCandidatesRepository;
 import xenhire.repository.ClientAssessmentBatchRepository;
 import xenhire.repository.ClientAssessmentPerBatchRepository;
+import xenhire.repository.JobAssignedCandidatesRepository;
 import xenhire.repository.RoleRepository;
 import xenhire.repository.UserRepository;
 import xenhire.request.AssessmentBatchAddCandidateRequest;
@@ -77,6 +79,9 @@ public class ClientAssessmentService {
 	
 	@Autowired
 	RoleRepository roleRepository;
+
+	@Autowired
+	JobAssignedCandidatesRepository jobAssignedCandidatesRepository;
 	
 	
 	
@@ -264,9 +269,11 @@ public class ClientAssessmentService {
 	public ResponseEntity<Object> getCandidates(long clientId, int pageNo, int pageSize) {
 		pageNo = pageNo - 1;
 		Pageable paging = PageRequest.of(pageNo, pageSize, Sort.by("id").ascending());
-		Page<User> pagedResult = userRepository.getCandidates(paging);
+		Page<JobAssignedCandidates> jacList = jobAssignedCandidatesRepository.findAllByClientId(clientId, paging);
+		List<Long> ids = jacList.getContent().stream().map(jac -> jac.getCandidateId()).collect(Collectors.toList());
+		List<User> userList = userRepository.findAllById(ids);
 		List<BatchCandidateResponse> resp = new ArrayList();
-		for(User u : pagedResult.getContent()) {
+		for(User u : userList){
 			BatchCandidateResponse bcr = new BatchCandidateResponse();
 			bcr.setEmailId(u.getEmail());
 			bcr.setMobileNo(u.getMobile());
@@ -277,8 +284,8 @@ public class ClientAssessmentService {
 		}
 		
 		PaginatedResponse paginationResponse = PaginatedResponse.builder().data(resp)
-				.pageNo(pagedResult.getNumber() + 1).pageSize(pagedResult.getSize())
-				.totalCount(pagedResult.getTotalElements()).message("found").result("success")
+				.pageNo(jacList.getNumber() + 1).pageSize(jacList.getSize())
+				.totalCount(jacList.getTotalElements()).message("found").result("success")
 				.build();
 		
 		return new ResponseEntity<>(paginationResponse, null, HttpStatus.OK);

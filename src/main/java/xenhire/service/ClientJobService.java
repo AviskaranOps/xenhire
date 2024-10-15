@@ -715,7 +715,8 @@ public class ClientJobService {
 						dtpStatus = "Completed";
 					}
 				}
-				CandidateDtpAccess dtp = candidateDtpAccessRepository.findByClientIdAndCandidateId(cliOpt.get().getId(), jac.getCandidateId());
+				List<CandidateDtpAccess> dtpList = candidateDtpAccessRepository.findByClientIdAndCandidateIdOrderByCreatedAtDesc(cliOpt.get().getId(), jac.getCandidateId());
+				CandidateDtpAccess dtp = dtpList.get(0);				
 				Optional<User> userOpt = userRepository.findById(jac.getCandidateId());
 				User u = userOpt.get();
 				boolean dtpAccess = false;
