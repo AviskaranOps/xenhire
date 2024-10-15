@@ -58,6 +58,8 @@ public class DtpAccessService {
 		CandidateDtpAccess access = candidateDtpAccessRepository.findByCandidateIdAndClientId(candidateId, req.getClientId());
 		if(access == null) access = new CandidateDtpAccess();
 		CandidateDTPReportData dtpData = candidateDTPReportDataRepository.getRecentRecord(candidateId);
+		access.setClientId(req.getClientId());
+		access.setCandidateId(candidateId);
 		access.setAuthorized(req.isAuthorized());
 		access.setDeclined(req.isDeclined());
 		access.setDtpStatus("Request Access");
