@@ -987,6 +987,13 @@ public ResponseEntity<Object> getCandidateDtpReport(long candidateId, long dtpRe
 			cp.setRoleWorkSettings(req.getWorkSetting());
 			cp.setSoftwares(req.getSoftwareApplication().get("app"));
 			cp.setSoftwareExperienceLevel(req.getSoftwareApplication().get("experience"));
+			cp.setDegree(req.getDegree());
+			cp.setFieldOfStudy(req.getFieldOfStudy());
+			cp.setInstitution(req.getInstitution());
+			cp.setCity(req.getCity());
+			cp.setState(req.getState());
+			cp.setCertificates(req.getCertificates());
+			//cp.setCertificates(req.getCertificates());)
 			//cp = req.getPreferences();
 			cp.setVersionId(maxVersionNo + 1);
 			cp.setCandidateId(candidateId);

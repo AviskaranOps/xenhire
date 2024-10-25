@@ -53,7 +53,7 @@ public class SecurityConfig {
 						"/authorizeClient", "/xen/authorizeClient", "/declineClient", "/xen/declineClient",
 						"/saveIcpTemplate", "/xen/saveIcpTemplate", "/getIcpTemplateResult", "/xen/getIcpTemplateResult", "/getJobDetails", "/xen/getJobDetails", "/getAllIcpTemplates", "/xen/getAllIcpTemplates",
 						"/saveJobTemplateForJob", "/xen/saveJobTemplateForJob", "/saveValueTemplateForJob", "/xen/saveValueTemplateForJob", "/saveTeamTemplateForJob", "/xen/saveTeamTemplateForJob","/savePreferenceTemplateForJob", "/xen/savePreferenceTemplateForJob",
-						"/getAllJobs", "/xen/getAllJobs", "/getAllJobCandidates", "/xen/getAllJobCandidates", "/requestDtpAccess", "/xen/requestDtpAccess", "/downloadResume", "/xen/downloadResume"
+						"/getAllJobs", "/xen/getAllJobs", "/getAllJobCandidates", "/xen/getAllJobCandidates", "/requestDtpAccess", "/xen/requestDtpAccess", "/downloadResume", "/xen/downloadResume","/xen/swagger-ui.html","/xen/swagger-ui/**"
 				)	
 				.permitAll().and().authorizeHttpRequests().anyRequest().authenticated().and().sessionManagement()
 				.sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
