@@ -18,9 +18,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.validation.Valid;
 import xenhire.dto.CandidatePersonalInfoDTO;
 import xenhire.model.CandidateAssessmentRanking;
+import xenhire.model.CandidateDetails;
 import xenhire.model.CandidatePreferences;
 import xenhire.model.CandidateScreeningQuestions;
 import xenhire.model.User;
@@ -33,6 +36,7 @@ import xenhire.request.ClientAssessmentRequest;
 import xenhire.request.PersonalInfoOptionRequest;
 import xenhire.response.CandidateSpectrumResults;
 import xenhire.response.CandidateValueResultResponse;
+import xenhire.service.CandidateDetailsService;
 import xenhire.service.CandidateService;
 import xenhire.service.ClientJobService;
 
@@ -41,7 +45,8 @@ public class CandidateController {
 	
 	@Autowired
 	CandidateService candidateService;
-	
+	@Autowired
+	CandidateDetailsService candidateDetailsService;
 	@Autowired
 	ClientJobService clientJobService;
 	
@@ -111,7 +116,7 @@ public class CandidateController {
 	}
 	
 	@PostMapping("/saveCandidateForm")
-	public ResponseEntity<Object> saveCandidateForm(@RequestBody CandidatePreferencesRequest req, @RequestParam("candidateId") long candidateId){
+	public ResponseEntity<Object> saveCandidateForm(@Valid@RequestBody CandidatePreferencesRequest req, @RequestParam("candidateId") long candidateId){
 		
 		try {
 			return candidateService.savecandidateForm(req, candidateId);
@@ -405,11 +410,45 @@ public class CandidateController {
 		
 	}
 	
+	@PostMapping("/saveCandidateDetailsForm")
+	public ResponseEntity<?> saveCandidateDetailsForm(@RequestBody CandidateDetails req, @RequestParam("candidateId") long candidateId){
+		
+		try {
+			CandidateDetails candidateDetails = candidateDetailsService.saveCandidateDetailsForm(req, candidateId);
+			return new ResponseEntity<CandidateDetails>(candidateDetails, HttpStatus.OK);
+		}
+		catch(Exception e) {
+			return new ResponseEntity<>(e.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	
+	}
+	
+	@GetMapping("/getCandidateDetailsForm")
+	public ResponseEntity<?> getCandidateDetails(@RequestParam("candidateId") long candidateId){
+		
+		try {
+			CandidateDetails candidateDetails = candidateDetailsService.getCandidateDetailsForm(candidateId);
+			return new ResponseEntity<CandidateDetails>(candidateDetails, HttpStatus.OK);
+		}
+		catch(Exception e) {
+			return new ResponseEntity<>(e.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	
+	}
+	
+	@PostMapping("/convertImageToByte")
+	public ResponseEntity<?> getImageByteData(@RequestParam("image") MultipartFile imageFile){
+		
+		try {
+			
+			return new ResponseEntity<byte[]>(imageFile.getBytes(), HttpStatus.OK);
+		}
+		catch(Exception e) {
+			return new ResponseEntity<>(e.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	
+	}
 	
 	
-	
-	
-	
-	
-
 }
+
