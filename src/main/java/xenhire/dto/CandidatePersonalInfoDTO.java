@@ -49,6 +49,12 @@ public class CandidatePersonalInfoDTO {
     String noticePeriod;
     String teamHandling;
     String teamSize;
+	String degree;
+	String fieldOfStudy;
+	String institution;
+	String city;
+	String state;
+	String certificates;
     List<Map<String, String>> indusrtyExperience;
     List<Map<String, String>> primarySkills;
     List<Map<String, String>> secoundrySkills;

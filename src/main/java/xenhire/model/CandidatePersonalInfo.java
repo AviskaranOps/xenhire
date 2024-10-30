@@ -58,6 +58,12 @@ public class CandidatePersonalInfo {
 	String visa;
 	String salaryCurrency;
 	String expectedSalaryCurrency;
+	String degree;
+	String fieldOfStudy;
+	String institution;
+	String city;
+	String state;
+	String certificates;
 	@Column(columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
 	LocalDateTime createdAt;
 	@Column(columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")

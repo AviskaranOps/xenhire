@@ -32,6 +32,13 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
         String username = null;
         String jwt = null;
+        
+        String requestUri = request.getRequestURI();
+        if (requestUri.startsWith("/xen/swagger-ui") || requestUri.startsWith("/xen/v*/api-docs")
+        		|| requestUri.startsWith("/xen/swagger-resources")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             jwt = authorizationHeader.substring(7);
