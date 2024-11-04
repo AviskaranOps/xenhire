@@ -25,8 +25,6 @@ public class CandidateProfessionalDetails {
     public String role;
     public Double yearsOfExperience;
 	@Column(columnDefinition = "MEDIUMTEXT")
-    public String projectsWorked;
-	@Column(columnDefinition = "MEDIUMTEXT")
     public String projectDescription;
 	@Column(columnDefinition = "MEDIUMTEXT")
     public String expWithStakeHolders;

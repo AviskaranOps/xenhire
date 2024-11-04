@@ -32,11 +32,6 @@ public class CandidateDetails {
 	public String title;
 	public Long mobileNumber;
 	public String summary;
-	@Lob
-	public String resume;
-	@Lob
-	@Column(columnDefinition = "MEDIUMBLOB")
-	public String profilePicture;
 	public String noticePeriod;
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinColumn(name = "candidate_details_id")

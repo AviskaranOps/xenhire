@@ -25,8 +25,6 @@ public class CandidateDetailsService {
 					data.setCandidateFullName(candidateDetails.getCandidateFullName());
 					data.setNoticePeriod(candidateDetails.getNoticePeriod());
 					data.setMobileNumber(candidateDetails.getMobileNumber());
-					data.setProfilePicture(candidateDetails.getProfilePicture());
-					data.setResume(candidateDetails.getResume());
 					data.setSummary(candidateDetails.getSummary());
 					data.setCandidateEducationDetails(candidateDetails.getCandidateEducationDetails());
 					data.setCandidateProfessionalDetails(candidateDetails.getCandidateProfessionalDetails());
