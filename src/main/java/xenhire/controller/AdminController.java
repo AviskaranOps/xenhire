@@ -3,12 +3,15 @@ package xenhire.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.annotation.security.RolesAllowed;
 import lombok.extern.slf4j.Slf4j;
 import xenhire.constants.AppConstants;
 import xenhire.model.Client;
@@ -120,6 +123,18 @@ public class AdminController {
 	public ResponseEntity<Object> saveJob(@RequestBody AdminJobRequest req){
 		try {
 			return adminService.saveJob(req);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			CommonResponse cr = CommonResponse.builder().data(null).message(e.getMessage()).result(AppConstants.FAILURE).build();
+			return new ResponseEntity<>(cr, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	@Secured({"ROLE_CLIENT", "ROLE_ADMIN"})
+	@GetMapping("/admin/getAllUsers")
+	public ResponseEntity<?> getAllUsers(@RequestParam Long userId){
+		try {
+			return new ResponseEntity<> (adminService.getAllUsers(userId),HttpStatus.OK);
 		}
 		catch(Exception e) {
 			e.printStackTrace();
