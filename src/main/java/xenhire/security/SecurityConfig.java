@@ -21,7 +21,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true, securedEnabled = true,jsr250Enabled = true)
+@EnableMethodSecurity(securedEnabled = true)
 
 public class SecurityConfig {
 
